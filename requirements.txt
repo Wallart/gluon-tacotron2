@@ -1,0 +1,5 @@
+mxnet==1.4.1
+unidecode
+inflect
+scipy
+librosa
