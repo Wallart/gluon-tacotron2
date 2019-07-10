@@ -54,7 +54,7 @@ def dynamic_range_compression(x, c=1, clip_val=1e-5):
     ------
     c: compression factor
     """
-    return nd.log(nd.array(np.clip(x.asnumpy(), a_min=clip_val, a_max=None)) * c)
+    return nd.log(nd.clip(x, a_min=clip_val, a_max=x.max().asscalar())) * c
 
 
 def dynamic_range_decompression(x, c=1):

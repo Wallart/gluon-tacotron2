@@ -27,6 +27,7 @@ def pad(seq, max_len):
 
 def collate_fn(batch):
     mel_spec = [item[0] for item in batch]
+    mel_spec_lengths = [x.shape[1] for x in mel_spec]
     text = [item[1] for item in batch]
     text_lengths = [x.shape[0] for x in text]
 
@@ -36,7 +37,14 @@ def collate_fn(batch):
     mel_batch = nd.stack(*[pad(x, max_mel_spec) for x in mel_spec])
     text_batch = nd.stack(*[pad(x, max_text) for x in text])
 
-    return mel_batch, (text_batch, nd.array(text_lengths))
+    gates = []
+    for m_len in mel_spec_lengths:
+        gate = np.zeros(max_mel_spec)
+        gate[:m_len-1] = 1
+        gates.append(nd.array(gate))
+    gates = nd.stack(*gates)
+
+    return (mel_batch, nd.array(mel_spec_lengths)), gates, (text_batch, nd.array(text_lengths))
 
 
 def get_dataset(path, batch_size):

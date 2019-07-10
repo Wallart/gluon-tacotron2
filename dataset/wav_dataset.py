@@ -8,6 +8,7 @@ from params import tacotron_params
 import os
 import glob
 import logging
+import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -40,8 +41,10 @@ class WavDataset(dataset.Dataset):
                 self._items.append((wav_file, self._load_text(text_file)))
 
     def _load_wav(self, file_path):
-        sampling_rate, data = read(file_path)
-        return nd.array(data.astype(np.float32))
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            sampling_rate, data = read(file_path)
+            return nd.array(data.astype(np.float32))
 
     def _load_text(self, file_path):
         with open(file_path, encoding='utf-8') as f:
@@ -72,7 +75,17 @@ if __name__ == '__main__':
     logging.basicConfig()
     logging.getLogger().setLevel(logging.INFO)
 
-    french = WavDataset('~/datasets/tacotron', text_to_sequence, **tacotron_params)
+    params = {
+        'max_wav_value': 32768.0,  # for 16 bits files
+        'sampling_rate': 22050,
+        'filter_length': 1024,
+        'hop_length': 256,
+        'win_length': 1024,
+        'n_mel_channels': 80,
+        'mel_fmin': 0.0,
+        'mel_fmax': 8000.0
+    }
+    french = WavDataset('~/datasets/tacotron', text_to_sequence, **params)
     assert type(french[0]) == tuple
 
     for i, (data, label) in enumerate(french):
