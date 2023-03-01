@@ -1,4 +1,4 @@
-mxnet==1.4.1
+mxnet==1.9.1
 unidecode
 inflect
 scipy
